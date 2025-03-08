@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +56,17 @@ app.post("/roll-dice", (req, res) => {
 
   res.json({ roll, win, payout, balance: 1000 + (win ? payout : -bet) });
 });
+
+// ✅ Serve Frontend Production Build
+if (process.env.NODE_ENV === "production") {
+  // Serve static files from the frontend build folder
+  app.use(express.static(path.join(__dirname, "frontend", "dist")));
+
+  // Fallback route for Single Page Application (SPA) handling
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 // ✅ Start Server
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
